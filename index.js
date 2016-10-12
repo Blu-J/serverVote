@@ -7,7 +7,7 @@ const privateKey = process.env.SERVER_VOTE_PEM;
 const Encrypt = require('node-rsa');
 const crypt = new Encrypt(privateKey);
 
-const validDecryption = /.*/;
+const validDecryption = /.*@.*\..*/;
 const awsKeys = {
   region: "us-west-2",
   accessKeyId: process.env.AMAZON_KEY_ID,
