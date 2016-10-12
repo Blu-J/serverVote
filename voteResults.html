@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    #results li {
+      opacity: 0;
+    }
+  </style>
+</head>
+
+
+<body>
+  <nav class="indigo">
+    <div class="nav-wrapper">
+      <a href="#" class="brand-logo center">Vote Results!</a>
+    </div>
+  </nav>
+  <div class="section no-pad-bot">
+    <div class="container">
+      <ul id="results">
+        <div class="progress">
+          <div class="indeterminate"></div>
+      </div>
+      </ul>
+
+    </div>
+  </div>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/1.0.0/fetch.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ramda/0.22.1/ramda.min.js"></script>
+  <script src="https://sdk.amazonaws.com/js/aws-sdk-2.6.7.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/should.js/11.1.1/should.js"></script>
+  <script>
+    ((scope) => {
+      const results = scope.document.querySelector('#results');
+      const categoryGroupRegex = /\((.*)\)-\((.*)\)/;
+      const fetchOptions = {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+      };
+      const getCategoryListHtml = R.curry(function _getCategoryListHtml(header, value){
+        return `
+          <li>
+            <h4>${header}</h4>
+            <p>
+              ${value}
+            </p>
+          </li>`;
+      });
+      const getRankingsHtml = rankings => `
+        <ol>
+          ${ rankings.map((ranking, index) => `<li>
+            ${index + 1}: ${ranking}
+          </li>`).join('\n')}
+        </ol>
+      `
+      const getMatrixPairwise = R.curry(function _getMatrixPairwise(entries, votes, category) {
+        return entries.reduce(
+          (acc1, e1) => {
+            acc1[e1] = entries.reduce(
+              (acc2, e2) => {
+                acc2[e2] = e1 === e2 ? 0 : votes.reduce((acc, x) => {
+                  const categorySet = x[category];
+                  if (categorySet == undefined) {
+                    return acc;
+                  }
+                  const left = categorySet[e2];
+                  const right = categorySet[e1];
+                  if (right == undefined) {
+                    return acc;
+                  }
+                  if (left == undefined) {
+                    return acc + 1;
+                  }
+                  return acc + (left >= right ? 1 : 0)
+                }, 0);
+                return acc2;
+              },
+              {}
+            );
+            return acc1;
+          },
+          {}
+        );
+      });
+      // https://en.wikipedia.org/wiki/Schulze_method#Implementation
+      const strongestPaths = R.curry(function _strongestPaths(entries, matrixPairwise) {
+        const acc = R.clone(matrixPairwise);
+        const indexes = entries;
+        indexes.forEach( (i) => indexes.forEach(j => indexes.forEach(k => {
+          if (i != j && i != k && j != k) {
+            acc[j][k] = Math.max(acc[j][k], Math.min(acc[j][i], acc[i][k]));
+          }
+        })));
+        return acc;
+      });
+
+      const getRankings = R.curry(function _getRankings(entries, matrixPairwise) {
+        function sortFunction(left, right) {
+          if (matrixPairwise[left][right] >= matrixPairwise[right][left])
+            return -1;
+          return 1;
+
+        }
+        return R.sort(
+          sortFunction,
+          entries
+        );
+      });
+
+      const deepVote = (vote) => {
+        return Object.keys(vote)
+          .filter(categoryGroupRegex.test, categoryGroupRegex)
+          .reduce((acc, key) => {
+            const [all, category, group] = key.match(categoryGroupRegex);
+            const newCategory = acc[category] || {};
+            newCategory[group] = vote[key];
+            acc[category] = newCategory;
+            return acc;
+          }, {});
+      };
+
+      scope.Promise.all([
+        scope.fetch('/getVoteData', fetchOptions)
+          .then(d => d.json()),
+        scope.fetch('/getVotes', fetchOptions)
+          .then(d => d.json())
+      ])
+        .then(([{entries, categories}, votes]) => {
+          const deepVotes = votes.map(deepVote);
+          const perCategoryRankings = categories
+            .map(getMatrixPairwise(entries, deepVotes))
+            .map(strongestPaths(entries))
+            .map(getRankings(entries));
+          const categoryRankings = R.zip(categories, perCategoryRankings);
+          results.innerHTML = categoryRankings.map(
+            ([category, rankings]) => {
+              return getCategoryListHtml(category)(getRankingsHtml(rankings));
+            }
+          ).join('\n');
+          Materialize.showStaggeredList('#results');
+        });
+
+    // ---
+    // Testing
+    // -------
+
+    //Examples from https://en.wikipedia.org/wiki/Schulze_method#Example
+    const entries = ["A","B","C","D","E"];
+    const matrixPairwise = {
+      A: {
+        A: 0,
+        B: 20,
+        C: 26,
+        D: 30,
+        E: 22,
+      },
+      B: {
+        A: 25,
+        B: 0,
+        C: 16,
+        D: 33,
+        E: 18,
+      },
+      C: {
+        A: 19,
+        B: 29,
+        C: 0,
+        D: 17,
+        E: 24,
+      },
+      D: {
+        A: 15,
+        B: 12,
+        C: 28,
+        D: 0,
+        E: 14,
+      },
+      E: {
+        A: 23,
+        B: 27,
+        C: 21,
+        D: 31,
+        E: 0,
+      },
+    };
+    const strongestMatrixPairwise = {
+      A: {
+        A: 0,
+        B: 28,
+        C: 28,
+        D: 30,
+        E: 24,
+      },
+      B: {
+        A: 25,
+        B: 0,
+        C: 28,
+        D: 33,
+        E: 24,
+      },
+      C: {
+        A: 25,
+        B: 29,
+        C: 0,
+        D: 29,
+        E: 24,
+      },
+      D: {
+        A: 25,
+        B: 28,
+        C: 28,
+        D: 0,
+        E: 24,
+      },
+      E: {
+        A: 25,
+        B: 28,
+        C: 28,
+        D: 31,
+        E: 0,
+      },
+    };
+    should.deepEqual(
+      getMatrixPairwise(
+        entries,
+        [{"First":{"A":1,"C":2,"B":3,"E":4,"D":5}},{"First":{"A":1,"C":2,"B":3,"E":4,"D":5}},{"First":{"A":1,"C":2,"B":3,"E":4,"D":5}},{"First":{"A":1,"C":2,"B":3,"E":4,"D":5}},{"First":{"A":1,"C":2,"B":3,"E":4,"D":5}},{"First":{"A":1,"D":2,"E":3,"C":4,"B":5}},{"First":{"A":1,"D":2,"E":3,"C":4,"B":5}},{"First":{"A":1,"D":2,"E":3,"C":4,"B":5}},{"First":{"A":1,"D":2,"E":3,"C":4,"B":5}},{"First":{"A":1,"D":2,"E":3,"C":4,"B":5}},{"First":{"B":1,"E":2,"D":3,"A":4,"C":5}},{"First":{"B":1,"E":2,"D":3,"A":4,"C":5}},{"First":{"B":1,"E":2,"D":3,"A":4,"C":5}},{"First":{"B":1,"E":2,"D":3,"A":4,"C":5}},{"First":{"B":1,"E":2,"D":3,"A":4,"C":5}},{"First":{"B":1,"E":2,"D":3,"A":4,"C":5}},{"First":{"B":1,"E":2,"D":3,"A":4,"C":5}},{"First":{"B":1,"E":2,"D":3,"A":4,"C":5}},{"First":{"C":1,"A":2,"B":3,"E":4,"D":5}},{"First":{"C":1,"A":2,"B":3,"E":4,"D":5}},{"First":{"C":1,"A":2,"B":3,"E":4,"D":5}},{"First":{"C":1,"A":2,"E":3,"B":4,"D":5}},{"First":{"C":1,"A":2,"E":3,"B":4,"D":5}},{"First":{"C":1,"A":2,"E":3,"B":4,"D":5}},{"First":{"C":1,"A":2,"E":3,"B":4,"D":5}},{"First":{"C":1,"A":2,"E":3,"B":4,"D":5}},{"First":{"C":1,"A":2,"E":3,"B":4,"D":5}},{"First":{"C":1,"A":2,"E":3,"B":4,"D":5}},{"First":{"C":1,"B":2,"A":3,"D":4,"E":5}},{"First":{"C":1,"B":2,"A":3,"D":4,"E":5}},{"First":{"D":1,"C":2,"E":3,"B":4,"A":5}},{"First":{"D":1,"C":2,"E":3,"B":4,"A":5}},{"First":{"D":1,"C":2,"E":3,"B":4,"A":5}},{"First":{"D":1,"C":2,"E":3,"B":4,"A":5}},{"First":{"D":1,"C":2,"E":3,"B":4,"A":5}},{"First":{"D":1,"C":2,"E":3,"B":4,"A":5}},{"First":{"D":1,"C":2,"E":3,"B":4,"A":5}},{"First":{"E":1,"B":2,"A":3,"D":4,"C":5}},{"First":{"E":1,"B":2,"A":3,"D":4,"C":5}},{"First":{"E":1,"B":2,"A":3,"D":4,"C":5}},{"First":{"E":1,"B":2,"A":3,"D":4,"C":5}},{"First":{"E":1,"B":2,"A":3,"D":4,"C":5}},{"First":{"E":1,"B":2,"A":3,"D":4,"C":5}},{"First":{"E":1,"B":2,"A":3,"D":4,"C":5}},{"First":{"E":1,"B":2,"A":3,"D":4,"C":5}}],
+        "First"
+      ),
+      matrixPairwise
+    );
+
+    should.deepEqual(
+      strongestPaths(
+        entries,
+        matrixPairwise
+      ),
+      strongestMatrixPairwise
+    );
+
+    should.deepEqual(
+      getRankings(
+        entries,
+        strongestMatrixPairwise
+      ),
+      ['E', 'A', 'C', 'B', 'D']
+    )
+
+    })(window);
+  </script>
+</body>
+</html>
