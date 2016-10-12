@@ -158,12 +158,14 @@ const getItems = (x) => {
   return x.Items;
 };
 
-const validateId = (item) => (item) => {
+const validateId = (item) => {
   try{
     const decryptedValue = crypt.decrypt(item.id);
+    console.log("decreypted value is ", decryptedValue);
     const isValid = validDecryption.test(decryptedValue);
     if (!isValid) {
-      console.log(`validateId -> failed validation for item of ${JSON.stringify(item)}`)
+      console.log(`validateId -> failed validation for item of ${JSON.stringify(item)}`);
+      return false;
     }
     return isValid;
   }
@@ -222,4 +224,4 @@ app.get('/getVotes', (r, response) => {
     .elseThen(badResponse(response));
 });
 
-app.listen(80);
+app.listen(8087);

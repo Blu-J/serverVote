@@ -168,7 +168,13 @@
           if(isValidForm)
             scope.fetch('/castVote', fetchOptions())
             .then((response) => {
-              Materialize.toast('Vote is submited', 4000);
+              if(response.ok){
+                Materialize.toast('Vote is submited', 4000);
+              }
+              else {
+                Materialize.toast('Error with server', 4000);
+                console.log('Bad as ', response);
+              }
             })
             .catch((response) => {
               Materialize.toast('Error with server', 4000);
