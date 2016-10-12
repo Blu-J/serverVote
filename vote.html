@@ -13,47 +13,49 @@
         <a href="#" class="brand-logo center">Logrhythm Hackathon Voting</a>
       </div>
     </nav>
-    <div class="section">
-      <div class="row">
-         <div class="col s12 m6">
-           <div class="card green">
-             <div class="card-content white-text">
-               <span class="card-title"> Get Started</span>
-               <p> Rank the teams listed below. </p>
-               <ul class="browser-default" style="margin-left: 1rem">
-                 <li>
-                   1 is the highest rank.
-                 </li>
-                 <li>
-                   Ties are allowed.
-                 </li>
-                 <li>
-                   Don't have to rank all the teams (blanks are the lowest rank).
-                 </li>
-               </ul>
+    <div class="">
+      <div class="container">
+        <div class="row">
+           <div class="col s12 m12">
+             <div class="card green">
+               <div class="card-content white-text">
+                 <span class="card-title"> Get Started</span>
+                 <p> Rank the teams listed below. </p>
+                 <ul class="browser-default" style="margin-left: 1rem">
+                   <li>
+                     1 is the highest rank.
+                   </li>
+                   <li>
+                     Ties are allowed.
+                   </li>
+                   <li>
+                     Don't have to rank all the teams (blanks are the lowest rank).
+                   </li>
+                 </ul>
+               </div>
              </div>
            </div>
          </div>
-       </div>
-      <div class="form-content">
-        <div class="progress">
-          <div class="indeterminate"></div>
-       </div>
+        <div class="form-content">
+          <div class="progress">
+            <div class="indeterminate"></div>
+         </div>
+        </div>
+
+        <button class="btn btn-submit btn-default">Submit</button>
+
+        <div class="row">
+           <div class="col s12 m12">
+             <div class="card green">
+               <div class="card-content white-text">
+                 <span class="card-title"> About </span>
+                 <p> Using a ranking system to determine the winner. The method used is called the <a href="https://en.wikipedia.org/wiki/Schulze_method">Schulze method.</a> </p>
+                 <p> <a href="/getResults"> View the results. </a> </p>
+               </div>
+             </div>
+           </div>
+         </div>
       </div>
-
-      <button class="btn btn-submit btn-default">Submit</button>
-
-      <div class="row">
-         <div class="col s12 m6">
-           <div class="card green">
-             <div class="card-content white-text">
-               <span class="card-title"> About </span>
-               <p> Using a ranking system to determine the winner. The method used is called the <a href="https://en.wikipedia.org/wiki/Schulze_method">Schulze method.</a> </p>
-               <p> <a href="/getResults"> View the results. </a> </p>
-             </div>
-           </div>
-         </div>
-       </div>
     </div>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/1.0.0/fetch.min.js"></script>
@@ -72,14 +74,14 @@
         };
         const formGroup = panelGroup => groupName => `
         <div class="row">
-          <div class="input-field col s12">
+          <div class="input-field col s12 m12">
             <input type="number" id="(${panelGroup})-(${groupName})" name="(${panelGroup})-(${groupName})"  data-error="Non-Unique Number" class="validate">
             <label for="(${panelGroup})-(${groupName})">Group Name: ${groupName}</label>
           </div>
         </div>`;
         const panelGroup = data => panelGroup => `
         <div class="panel-group row">
-         <div class="col s12 m5">
+         <div class="col s12 m12">
            <div class="card-panel blue-grey">
              <div class="card-content white-text">
                 <span class="card-title">Category: ${panelGroup}</span>

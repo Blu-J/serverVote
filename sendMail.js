@@ -8,12 +8,12 @@ const crypt = new Encrypt(privateKey);
 const helper = sendgrid.mail;
 const from_email = new helper.Email('justin.miller@logrhythm.com');
 const templateContent = (emailAddress) => `
-Hello,
-  Now is your chance to vote, but I don't want the issues of <a href="https://en.wikipedia.org/wiki/First-past-the-post_voting">first past the post</a>. To solve it the best, we have a <a href="https://en.wikipedia.org/wiki/Schulze_method">schulze voting method</a>.
-
-   <a href="http://algorithmalchemist.net/?id=${crypt.encrypt(emailAddress, 'base64')}">Link to Your voting page, your id is unique</a> <a href="http://ec2-52-40-203-50.us-west-2.compute.amazonaws.com/?id=${crypt.encrypt(emailAddress, 'base64')}"> Alt Link </a>
-   <a href="http://algorithmalchemist.net/getResults">View Ranked Results</a>        <a href="http://algorithmalchemist.net/getVotes"> Raw Votes </a>
-   <a href="https://followmyvote.com/majority-voting-systems/">Majority Voting Systems</a> Web article on voting.
+<p>Hello,</p>
+  <p>Now is your chance to vote, but I don't want the issues of <a href="https://en.wikipedia.org/wiki/First-past-the-post_voting">first past the post</a>. To solve it the best, we have a <a href="https://en.wikipedia.org/wiki/Schulze_method">schulze voting method</a>.</p>
+  </br>
+   <p><a href="http://algorithmalchemist.net/?id=${crypt.encrypt(emailAddress, 'base64')}">Link to Your voting page, your id is unique</a> <a href="http://ec2-52-40-203-50.us-west-2.compute.amazonaws.com/?id=${crypt.encrypt(emailAddress, 'base64')}"> Alt Link </a></p>
+   <p><a href="http://algorithmalchemist.net/getResults">View Ranked Results</a> ------------------ <a href="http://algorithmalchemist.net/getVotes"> Raw Votes </a></p>
+   <p><a href="https://followmyvote.com/majority-voting-systems/">Majority Voting Systems</a> Web article on voting.</p>
 `;
 
 const sendMail = (emailAddress) => {
