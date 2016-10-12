@@ -224,4 +224,4 @@ app.get('/getVotes', (r, response) => {
     .elseThen(badResponse(response));
 });
 
-app.listen(8087);
+app.listen(80);

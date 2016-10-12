@@ -14,48 +14,46 @@
       </div>
     </nav>
     <div class="section">
-      <div class="container">
-        <div class="row">
-           <div class="col s12 m6">
-             <div class="card green">
-               <div class="card-content white-text">
-                 <span class="card-title"> Get Started</span>
-                 <p> Rank the teams listed below. </p>
-                 <ul class="browser-default" style="margin-left: 1rem">
-                   <li>
-                     1 is the highest rank.
-                   </li>
-                   <li>
-                     Ties are allowed.
-                   </li>
-                   <li>
-                     Don't have to rank all the teams (blanks are the lowest rank).
-                   </li>
-                 </ul>
-               </div>
+      <div class="row">
+         <div class="col s12 m6">
+           <div class="card green">
+             <div class="card-content white-text">
+               <span class="card-title"> Get Started</span>
+               <p> Rank the teams listed below. </p>
+               <ul class="browser-default" style="margin-left: 1rem">
+                 <li>
+                   1 is the highest rank.
+                 </li>
+                 <li>
+                   Ties are allowed.
+                 </li>
+                 <li>
+                   Don't have to rank all the teams (blanks are the lowest rank).
+                 </li>
+               </ul>
              </div>
            </div>
          </div>
-        <div class="form-content">
-          <div class="progress">
-            <div class="indeterminate"></div>
-         </div>
-        </div>
-
-        <button class="btn btn-submit btn-default">Submit</button>
-
-        <div class="row">
-           <div class="col s12 m6">
-             <div class="card green">
-               <div class="card-content white-text">
-                 <span class="card-title"> About </span>
-                 <p> Using a ranking system to determined the winner. The method used is called the <a href="https://en.wikipedia.org/wiki/Schulze_method">Schulze method.</a> </p>
-                 <p> <a href="/getResults"> View the results. </a> </p>
-               </div>
-             </div>
-           </div>
-         </div>
+       </div>
+      <div class="form-content">
+        <div class="progress">
+          <div class="indeterminate"></div>
+       </div>
       </div>
+
+      <button class="btn btn-submit btn-default">Submit</button>
+
+      <div class="row">
+         <div class="col s12 m6">
+           <div class="card green">
+             <div class="card-content white-text">
+               <span class="card-title"> About </span>
+               <p> Using a ranking system to determine the winner. The method used is called the <a href="https://en.wikipedia.org/wiki/Schulze_method">Schulze method.</a> </p>
+               <p> <a href="/getResults"> View the results. </a> </p>
+             </div>
+           </div>
+         </div>
+       </div>
     </div>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/1.0.0/fetch.min.js"></script>
@@ -169,10 +167,10 @@
             scope.fetch('/castVote', fetchOptions())
             .then((response) => {
               if(response.ok){
-                Materialize.toast('Vote is submited', 4000);
+                Materialize.toast('Vote is Submitted', 4000);
               }
               else {
-                Materialize.toast('Error with server', 4000);
+                Materialize.toast('Vote Rejected', 4000);
                 console.log('Bad as ', response);
               }
             })
