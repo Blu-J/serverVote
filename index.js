@@ -2,8 +2,7 @@ const express = require("express");
 const app = express();
 const AWS = require("aws-sdk");
 const request = require('request');
-const privateKey = require('./privateKey');
-const publicKey = require('./publicKey');
+const privateKey = require('./resources/privateKey') || '';
 const Encrypt = require('node-rsa');
 const crypt = new Encrypt(privateKey);
 
