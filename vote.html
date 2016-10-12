@@ -20,7 +20,7 @@
              <div class="card green">
                <div class="card-content white-text">
                  <span class="card-title">About</span>
-                 <p>Vote for who you think should win. Put in the rankings of the candidates, 1 is highest, and they must be unique per category.</p>
+                 <p>Vote for who you think should win. Put in the rankings of the candidates, 1 is highest, the higher the number the worse place they will be in. You are allowed to put in ties, and to put in blanks.</p>
                </div>
              </div>
            </div>
@@ -82,14 +82,12 @@
           let isValid = true;
           Array.from(scope.document.querySelectorAll('.panel-group'))
           .forEach((panelGroup) => {
-            const counted = {};
             Array.from(panelGroup.querySelectorAll('input'))
               .forEach((element) => {
                 const number = Number(element.value);
                 const isNumber = !(!element.value || element.value === 0) && !Number.isNaN(number);
-                const isUnique = !counted[number];
-                const isPositive = number > 1;
-                if(!isNumber || !isUnique || !isPositive){
+                const isPositive = number >= 1;
+                if(isNumber && !(isPositive)){
                   isValid = false;
                   element.classList.add('invalid');
                   element.classList.remove('valid');
@@ -97,7 +95,6 @@
                 else{
                   element.classList.remove('invalid');
                   element.classList.add('valid');
-                  counted[number] = element;
                 }
               })
           });
@@ -106,7 +103,8 @@
         const getFormJSON = () => {
           return Array.from(scope.document.querySelectorAll('input'))
             .reduce((acc, element) => {
-              acc[element.attributes.name.value] = Number(element.value);
+              if (element.value)
+                acc[element.attributes.name.value] = Number(element.value);
               return acc;
             }, {});
         };
