@@ -158,21 +158,32 @@ const getItems = (x) => {
   return x.Items;
 };
 
+const validateId = (item) => (item) => {
+  try{
+    const decryptedValue = crypt.decrypt(item.id);
+    const isValid = validDecryption.test(decryptedValue);
+    if (!isValid) {
+      console.log(`validateId -> failed validation for item of ${JSON.stringify(item)}`)
+    }
+    return isValid;
+  }
+  catch(e){
+    console.log(`validateId -> Could not validate id out the id for ${JSON.stringify(item)} with error ${e.toString()}`)
+    return false;
+  }
+};
+
+const onlyValidId = (item) => {
+  if (validateId(item)) {
+    return item;
+  }
+  return Maybe.ofError(`Could not validate id for ${JSON.stringify(item)}`);
+}
+
 const filterOutInvalidIds = (items) => items
-  .filter((item) => {
-    try{
-      const decryptedValue = crypt.decrypt(item.id);
-      const isValid = validDecryption.test(decryptedValue);
-      if (!isValid) {
-        console.log(`filterOutInvalidIds -> failed validation for itme of ${JSON.stringify(item)}`)
-      }
-      return isValid;
-    }
-    catch(e){
-      console.log(`filterOutInvalidIds -> Could not filter out the id for ${JSON.stringify(item)} with error ${e.toString()}`)
-      return false;
-    }
-  });
+  .filter(validateId);
+
+const filterOutIds = (items) => items.map(item =>Object.assign({}, item, { id: 'Hidden' }));
 
 app.get("/",(req, res) => {
 	request('http://algorithmalchemist.net.s3-website-us-west-2.amazonaws.com/vote.html').pipe(res);
@@ -194,6 +205,7 @@ app.post('/castVote', bodyParser.json({ type: 'application/json'}), (req, res) =
   console.log(`req keys are ${Object.keys(req.body)}`);
   return Maybe.of(req.body)
     .andThen(Item)
+    .andThen(onlyValidId)
     .andThen(toParams)
     .andThen(putInServer)
     .andThen(goodResponse(res))
@@ -205,6 +217,7 @@ app.get('/getVotes', (r, response) => {
   Maybe.of(docClientSend('vote.algorithmalchemist.net'))
     .andThen(getItems)
     .andThen(filterOutInvalidIds)
+    .andThen(filterOutIds)
     .andThen(goodJson(response))
     .elseThen(badResponse(response));
 });
