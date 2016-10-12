@@ -1,1 +1,3 @@
 resources/
+.env
+node_modules/

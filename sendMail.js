@@ -1,20 +1,27 @@
+require('dotenv').config();
 const sendgrid = require('sendgrid');
+const privateKey = process.env.SERVER_VOTE_PEM;
+const Encrypt = require('node-rsa');
+const emailAddress = require('./resources/emailAdresses.json') || [];
+const crypt = new Encrypt(privateKey);
+
 const helper = sendgrid.mail;
-const from_email = new helper.Email('test@example.com');
-const to_email = new helper.Email('test@example.com');
-const subject = 'Hello World from the SendGrid Node.js Library!';
-const content = new helper.Content('text/plain', 'Hello, Email!');
-const mail = new helper.Mail(from_email, subject, to_email, content);
+const from_email = new helper.Email('justin.miller@logrhythm.com');
 
-const sg = sendgrid(process.env.SENDGRID_API_KEY);
-const request = sg.emptyRequest({
-  method: 'POST',
-  path: '/v3/mail/send',
-  body: mail.toJSON(),
-});
+const sendMail = (emailAddress) => {
+  const to_email = new helper.Email(emailAddress);
+  const subject = 'Vote for the best; Hackathon';
+  const content = new helper.Content('text/plain', `Hello, Email! <a href="http://algorithmalchemist/?id=${crypt.encrypt(emailAddress)}">Link to Your voting page, your id is unique</a>`);
+  const mail = new helper.Mail(from_email, subject, to_email, content);
 
-sg.API(request, (error, response) => {
-  console.log(response.statusCode);
-  console.log(response.body);
-  console.log(response.headers);
-});
+  const sg = sendgrid(process.env.SENDGRID_API_KEY);
+  const request = sg.emptyRequest({
+    method: 'POST',
+    path: '/v3/mail/send',
+    body: mail.toJSON(),
+  });
+
+  sg.API(request, (error, response) => {
+    console.log(`Sent mail to ${emailAddress} with a response code of ${response.statusCode} and the body of ${response.body}`);
+  });
+};
