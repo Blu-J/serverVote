@@ -2,15 +2,15 @@ const express = require("express");
 const app = express();
 const AWS = require("aws-sdk");
 const request = require('request');
-const privateKey = require('./resources/privateKey') || '';
+const privateKey = process.env.SERVER_VOTE_PEM;
 const Encrypt = require('node-rsa');
 const crypt = new Encrypt(privateKey);
 
 const validDecryption = /.*/;
 const awsKeys = {
   region: "us-west-2",
-  accessKeyId: 'AKIAJ7EZTL6LVRDKPERQ',
-  secretAccessKey: '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',
+  accessKeyId: process.env.AMAZON_KEY_ID,
+  secretAccessKey: process.env.AMAZON_SECRET_KEY,
 };
 const bodyParser = require('body-parser');
 
