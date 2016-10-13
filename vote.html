@@ -94,7 +94,10 @@
           .then(d => d.json())
           .then(data => {
             formContent.innerHTML = data.categories.map(panelGroup(data)).join('<br/>');
-            Materialize.updateTextFields();
+            scope.Materialize.updateTextFields();
+          })
+          .catch((e) => {
+            console.log('Error getting vote data with error', e);
           });
       })(window);
     </script>
@@ -169,16 +172,16 @@
             scope.fetch('/castVote', fetchOptions())
             .then((response) => {
               if(response.ok){
-                Materialize.toast('Vote is Submitted', 4000);
+                scope.Materialize.toast('Vote is Submitted', 4000);
               }
               else {
-                Materialize.toast('Vote Rejected', 4000);
                 console.log('Bad as ', response);
+                scope.Materialize.toast('Vote Rejected', 4000);
               }
             })
             .catch((response) => {
-              Materialize.toast('Error with server', 4000);
-              console.log('Bad as ', response);
+              console.log('Caught error while submitting vote ', response);
+              scope.Materialize.toast('Error with server method', 4000);
             });
           return false;
         };

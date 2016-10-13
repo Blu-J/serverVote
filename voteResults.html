@@ -135,11 +135,13 @@
       ])
         .then(([{entries, categories}, votes]) => {
           const deepVotes = votes.map(deepVote);
-          const perCategoryRankings = categories
-            .map(getMatrixPairwise(entries, deepVotes))
-            .map(strongestPaths(entries))
-            .map(getRankings(entries));
-          const categoryRankings = R.zip(categories, perCategoryRankings);
+          const randomEntries = R.sort(() => Math.random(), entries);
+          const randomCategories = R.sort(() => Math.random(), categories)
+          const perCategoryRankings = randomCategories
+            .map(getMatrixPairwise(randomEntries, deepVotes))
+            .map(strongestPaths(randomEntries))
+            .map(getRankings(randomEntries));
+          const categoryRankings = R.zip(randomCategories, perCategoryRankings);
           results.innerHTML = categoryRankings.map(
             ([category, rankings]) => {
               return getCategoryListHtml(category)(getRankingsHtml(rankings));
