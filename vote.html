@@ -20,16 +20,10 @@
              <div class="card green">
                <div class="card-content white-text">
                  <span class="card-title"> Get Started</span>
-                 <p> Rank the teams listed below. </p>
+                 <p> Vote for the teams </p>
                  <ul class="browser-default" style="margin-left: 1rem">
                    <li>
-                     1 is the highest rank.
-                   </li>
-                   <li>
-                     Ties are allowed.
-                   </li>
-                   <li>
-                     Don't have to rank all the teams (blanks are the lowest rank).
+                     Further right the more points they have (think olympics)
                    </li>
                  </ul>
                </div>
@@ -49,8 +43,8 @@
              <div class="card green">
                <div class="card-content white-text">
                  <span class="card-title"> About </span>
-                 <p> Using a ranking system to determine the winner. The method used is called the <a href="https://en.wikipedia.org/wiki/Schulze_method">Schulze method.</a> </p>
                  <p> <a href="/getResults"> View the results. </a> </p>
+                 <p> <a href="/getVotes"> View the results of raw. </a> </p>
                </div>
              </div>
            </div>
@@ -63,6 +57,44 @@
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.6.7.min.js"></script>
     <script>
       ((scope) => {
+
+        const keyVal = (value) => {
+          const split = value.split('=');
+          return {
+            key: split[0],
+            value: split[1]
+          };
+        };
+        const query = scope.location.search.substring(1).split('&')
+          .map(keyVal)
+          .reduce(
+            (acc, keyVal) => {
+              acc[keyVal.key] = keyVal.value;
+              return acc;
+            },
+            {}
+          );
+        //Pulled from http://stackoverflow.com/questions/521295/javascript-random-seeds
+          var m_w = parseInt((query.id || 'none').toLowerCase(), 36);
+          var m_z = 987654321;
+          var mask = 0xffffffff;
+
+          // Takes any integer
+          function seed(i) {
+              m_w = i;
+          }
+
+          // Returns number between 0 (inclusive) and 1.0 (exclusive),
+          // just like Math.random().
+          function random()
+          {
+              m_z = (36969 * (m_z & 65535) + (m_z >> 16)) & mask;
+              m_w = (18000 * (m_w & 65535) + (m_w >> 16)) & mask;
+              var result = ((m_z << 16) + m_w) & mask;
+              result /= 4294967296;
+              return result + 0.5;
+          }
+
         const formContent = scope.document.querySelector('.form-content');
         const fetchOptions = {
           method: 'GET',
@@ -75,8 +107,10 @@
         const formGroup = panelGroup => groupName => `
         <div class="row">
           <div class="input-field col s12 m12">
-            <input type="number" id="(${panelGroup})-(${groupName})" name="(${panelGroup})-(${groupName})"  data-error="Non-Unique Number" class="validate">
-            <label for="(${panelGroup})-(${groupName})">Group Name: ${groupName}</label>
+            <label for="(${panelGroup})-(${groupName})" style="color: #eee">Group Name: ${groupName}</label>
+            <p class="range-field" style="padding-top:2.5em">
+              <input type="range" id="(${panelGroup})-(${groupName})" name="(${panelGroup})-(${groupName})" min="0" max="100" value="0"/>
+            </p>
           </div>
         </div>`;
         const panelGroup = data => panelGroup => `
@@ -90,8 +124,28 @@
            </div>
          </div>
        </div>`;
+       //*
         scope.fetch('/getVoteData', fetchOptions)
           .then(d => d.json())
+        /*/
+        Promise.resolve({ entries: ['A', 'B', 'C', 'D'], categories: ['First'] })
+        //*/
+          .then(x => ({
+            categories: [].concat(x.categories).sort(x => {
+              const randomNum = random();
+              if(randomNum > .5) {
+                return 1;
+              }
+              return -1;
+            }),
+            entries: [].concat(x.entries).sort(x => {
+              const randomNum = random();
+              if(randomNum > .5) {
+                return 1;
+              }
+              return -1;
+            }),
+          }))
           .then(data => {
             formContent.innerHTML = data.categories.map(panelGroup(data)).join('<br/>');
             scope.Materialize.updateTextFields();
@@ -167,22 +221,20 @@
 
         const onSubmit = (event) => {
           event.preventDefault();
-          const isValidForm = validateForm();
-          if(isValidForm)
-            scope.fetch('/castVote', fetchOptions())
-            .then((response) => {
-              if(response.ok){
-                scope.Materialize.toast('Vote is Submitted', 4000);
-              }
-              else {
-                console.log('Bad as ', response);
-                scope.Materialize.toast('Vote Rejected', 4000);
-              }
-            })
-            .catch((response) => {
-              console.log('Caught error while submitting vote ', response);
-              scope.Materialize.toast('Error with server method', 4000);
-            });
+          scope.fetch('/castVote', fetchOptions())
+          .then((response) => {
+            if(response.ok){
+              scope.Materialize.toast('Vote is Submitted', 4000);
+            }
+            else {
+              console.log('Bad as ', response);
+              scope.Materialize.toast('Vote Rejected', 4000);
+            }
+          })
+          .catch((response) => {
+            console.log('Caught error while submitting vote ', response);
+            scope.Materialize.toast('Error with server method', 4000);
+          });
           return false;
         };
 

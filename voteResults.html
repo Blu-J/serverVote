@@ -20,6 +20,32 @@
   </nav>
   <div class="section no-pad-bot">
     <div class="container">
+      <div class="row">
+         <div class="col s12 m12">
+           <div class="card  light-blue lighten-4">
+             <div class="card-content">
+               <span class="card-title"> Get Started</span>
+               <p> Rank the teams given a certain method </p>
+               <ul class="browser-default" style="margin-left: 1rem">
+                 <li>
+                   <a href="https://en.wikipedia.org/wiki/Schulze_method">Schulze Method</a>
+                 </li>
+                 <li>
+                   <a href="https://en.wikipedia.org/wiki/Range_voting">Range Voting Method</a>
+                 </li>
+               </ul>
+             </div>
+           </div>
+         </div>
+       </div>
+      <div class="switch">
+        <label>
+          Range Vote
+          <input type="checkbox" class="isRangeVoteOn">
+          <span class="lever"></span>
+          Schulze Vote
+        </label>
+      </div>
       <ul id="results">
         <div class="progress">
           <div class="indeterminate"></div>
@@ -36,6 +62,342 @@
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/should.js/11.1.1/should.js"></script>
   <script>
     ((scope) => {
+      let votes;
+      let randomEntries;
+      let randomCategories;
+      function deepFreeze (o) {
+        Object.freeze(o);
+
+        Object.getOwnPropertyNames(o).forEach(function (prop) {
+          if (o.hasOwnProperty(prop)
+          && o[prop] !== null
+          && (typeof o[prop] === "object" || typeof o[prop] === "function")
+          && !Object.isFrozen(o[prop])) {
+            deepFreeze(o[prop]);
+          }
+        });
+
+        return o;
+      };
+      const fakeEntries = deepFreeze(["A","B","C","D","E"]);
+      const fakeCategories = deepFreeze(['First']);
+      const fakeVotes = deepFreeze([
+        {
+          "(First)-(A)": 100,
+          "(First)-(C)": 75,
+          "(First)-(B)": 50,
+          "(First)-(E)": 25,
+          "(First)-(D)": 0
+        },
+        {
+          "(First)-(A)": 100,
+          "(First)-(C)": 75,
+          "(First)-(B)": 50,
+          "(First)-(E)": 25,
+          "(First)-(D)": 0
+        },
+        {
+          "(First)-(A)": 100,
+          "(First)-(C)": 75,
+          "(First)-(B)": 50,
+          "(First)-(E)": 25,
+          "(First)-(D)": 0
+        },
+        {
+          "(First)-(A)": 100,
+          "(First)-(C)": 75,
+          "(First)-(B)": 50,
+          "(First)-(E)": 25,
+          "(First)-(D)": 0
+        },
+        {
+          "(First)-(A)": 100,
+          "(First)-(C)": 75,
+          "(First)-(B)": 50,
+          "(First)-(E)": 25,
+          "(First)-(D)": 0
+        },
+        {
+          "(First)-(A)": 100,
+          "(First)-(D)": 75,
+          "(First)-(E)": 50,
+          "(First)-(C)": 25,
+          "(First)-(B)": 0
+        },
+        {
+          "(First)-(A)": 100,
+          "(First)-(D)": 75,
+          "(First)-(E)": 50,
+          "(First)-(C)": 25,
+          "(First)-(B)": 0
+        },
+        {
+          "(First)-(A)": 100,
+          "(First)-(D)": 75,
+          "(First)-(E)": 50,
+          "(First)-(C)": 25,
+          "(First)-(B)": 0
+        },
+        {
+          "(First)-(A)": 100,
+          "(First)-(D)": 75,
+          "(First)-(E)": 50,
+          "(First)-(C)": 25,
+          "(First)-(B)": 0
+        },
+        {
+          "(First)-(A)": 100,
+          "(First)-(D)": 75,
+          "(First)-(E)": 50,
+          "(First)-(C)": 25,
+          "(First)-(B)": 0
+        },
+        {
+          "(First)-(B)": 100,
+          "(First)-(E)": 75,
+          "(First)-(D)": 50,
+          "(First)-(A)": 25,
+          "(First)-(C)": 0
+        },
+        {
+          "(First)-(B)": 100,
+          "(First)-(E)": 75,
+          "(First)-(D)": 50,
+          "(First)-(A)": 25,
+          "(First)-(C)": 0
+        },
+        {
+          "(First)-(B)": 100,
+          "(First)-(E)": 75,
+          "(First)-(D)": 50,
+          "(First)-(A)": 25,
+          "(First)-(C)": 0
+        },
+        {
+          "(First)-(B)": 100,
+          "(First)-(E)": 75,
+          "(First)-(D)": 50,
+          "(First)-(A)": 25,
+          "(First)-(C)": 0
+        },
+        {
+          "(First)-(B)": 100,
+          "(First)-(E)": 75,
+          "(First)-(D)": 50,
+          "(First)-(A)": 25,
+          "(First)-(C)": 0
+        },
+        {
+          "(First)-(B)": 100,
+          "(First)-(E)": 75,
+          "(First)-(D)": 50,
+          "(First)-(A)": 25,
+          "(First)-(C)": 0
+        },
+        {
+          "(First)-(B)": 100,
+          "(First)-(E)": 75,
+          "(First)-(D)": 50,
+          "(First)-(A)": 25,
+          "(First)-(C)": 0
+        },
+        {
+          "(First)-(B)": 100,
+          "(First)-(E)": 75,
+          "(First)-(D)": 50,
+          "(First)-(A)": 25,
+          "(First)-(C)": 0
+        },
+        {
+          "(First)-(C)": 100,
+          "(First)-(A)": 75,
+          "(First)-(B)": 50,
+          "(First)-(E)": 25,
+          "(First)-(D)": 0
+        },
+        {
+          "(First)-(C)": 100,
+          "(First)-(A)": 75,
+          "(First)-(B)": 50,
+          "(First)-(E)": 25,
+          "(First)-(D)": 0
+        },
+        {
+          "(First)-(C)": 100,
+          "(First)-(A)": 75,
+          "(First)-(B)": 50,
+          "(First)-(E)": 25,
+          "(First)-(D)": 0
+        },
+        {
+          "(First)-(C)": 100,
+          "(First)-(A)": 75,
+          "(First)-(E)": 50,
+          "(First)-(B)": 25,
+          "(First)-(D)": 0
+        },
+        {
+          "(First)-(C)": 100,
+          "(First)-(A)": 75,
+          "(First)-(E)": 50,
+          "(First)-(B)": 25,
+          "(First)-(D)": 0
+        },
+        {
+          "(First)-(C)": 100,
+          "(First)-(A)": 75,
+          "(First)-(E)": 50,
+          "(First)-(B)": 25,
+          "(First)-(D)": 0
+        },
+        {
+          "(First)-(C)": 100,
+          "(First)-(A)": 75,
+          "(First)-(E)": 50,
+          "(First)-(B)": 25,
+          "(First)-(D)": 0
+        },
+        {
+          "(First)-(C)": 100,
+          "(First)-(A)": 75,
+          "(First)-(E)": 50,
+          "(First)-(B)": 25,
+          "(First)-(D)": 0
+        },
+        {
+          "(First)-(C)": 100,
+          "(First)-(A)": 75,
+          "(First)-(E)": 50,
+          "(First)-(B)": 25,
+          "(First)-(D)": 0
+        },
+        {
+          "(First)-(C)": 100,
+          "(First)-(A)": 75,
+          "(First)-(E)": 50,
+          "(First)-(B)": 25,
+          "(First)-(D)": 0
+        },
+        {
+          "(First)-(C)": 100,
+          "(First)-(B)": 75,
+          "(First)-(A)": 50,
+          "(First)-(D)": 25,
+          "(First)-(E)": 0
+        },
+        {
+          "(First)-(C)": 100,
+          "(First)-(B)": 75,
+          "(First)-(A)": 50,
+          "(First)-(D)": 25,
+          "(First)-(E)": 0
+        },
+        {
+          "(First)-(D)": 100,
+          "(First)-(C)": 75,
+          "(First)-(E)": 50,
+          "(First)-(B)": 25,
+          "(First)-(A)": 0
+        },
+        {
+          "(First)-(D)": 100,
+          "(First)-(C)": 75,
+          "(First)-(E)": 50,
+          "(First)-(B)": 25,
+          "(First)-(A)": 0
+        },
+        {
+          "(First)-(D)": 100,
+          "(First)-(C)": 75,
+          "(First)-(E)": 50,
+          "(First)-(B)": 25,
+          "(First)-(A)": 0
+        },
+        {
+          "(First)-(D)": 100,
+          "(First)-(C)": 75,
+          "(First)-(E)": 50,
+          "(First)-(B)": 25,
+          "(First)-(A)": 0
+        },
+        {
+          "(First)-(D)": 100,
+          "(First)-(C)": 75,
+          "(First)-(E)": 50,
+          "(First)-(B)": 25,
+          "(First)-(A)": 0
+        },
+        {
+          "(First)-(D)": 100,
+          "(First)-(C)": 75,
+          "(First)-(E)": 50,
+          "(First)-(B)": 25,
+          "(First)-(A)": 0
+        },
+        {
+          "(First)-(D)": 100,
+          "(First)-(C)": 75,
+          "(First)-(E)": 50,
+          "(First)-(B)": 25,
+          "(First)-(A)": 0
+        },
+        {
+          "(First)-(E)": 100,
+          "(First)-(B)": 75,
+          "(First)-(A)": 50,
+          "(First)-(D)": 25,
+          "(First)-(C)": 0
+        },
+        {
+          "(First)-(E)": 100,
+          "(First)-(B)": 75,
+          "(First)-(A)": 50,
+          "(First)-(D)": 25,
+          "(First)-(C)": 0
+        },
+        {
+          "(First)-(E)": 100,
+          "(First)-(B)": 75,
+          "(First)-(A)": 50,
+          "(First)-(D)": 25,
+          "(First)-(C)": 0
+        },
+        {
+          "(First)-(E)": 100,
+          "(First)-(B)": 75,
+          "(First)-(A)": 50,
+          "(First)-(D)": 25,
+          "(First)-(C)": 0
+        },
+        {
+          "(First)-(E)": 100,
+          "(First)-(B)": 75,
+          "(First)-(A)": 50,
+          "(First)-(D)": 25,
+          "(First)-(C)": 0
+        },
+        {
+          "(First)-(E)": 100,
+          "(First)-(B)": 75,
+          "(First)-(A)": 50,
+          "(First)-(D)": 25,
+          "(First)-(C)": 0
+        },
+        {
+          "(First)-(E)": 100,
+          "(First)-(B)": 75,
+          "(First)-(A)": 50,
+          "(First)-(D)": 25,
+          "(First)-(C)": 0
+        },
+        {
+          "(First)-(E)": 100,
+          "(First)-(B)": 75,
+          "(First)-(A)": 50,
+          "(First)-(D)": 25,
+          "(First)-(C)": 0
+        }
+      ]);
       const results = scope.document.querySelector('#results');
       const categoryGroupRegex = /\((.*)\)-\((.*)\)/;
       const fetchOptions = {
@@ -54,7 +416,7 @@
             </p>
           </li>`;
       });
-      const getRankingsHtml = rankings => `
+      const getRankingsFromMatrixHtml = rankings => `
         <ol>
           ${ rankings.map((ranking, index) => `<li>
             ${index + 1}: ${ranking}
@@ -79,7 +441,7 @@
                   if (left == undefined) {
                     return acc + 1;
                   }
-                  return acc + (left >= right ? 1 : 0)
+                  return acc + (left <= right ? 1 : 0)
                 }, 0);
                 return acc2;
               },
@@ -102,9 +464,28 @@
         return acc;
       });
 
-      const getRankings = R.curry(function _getRankings(entries, matrixPairwise) {
+      const getRankingsFromMatrix = R.curry(function _getRankingsFromMatrix(cat, entries, matrixPairwise) {
         function sortFunction(left, right) {
+          if (matrixPairwise[left][right] === matrixPairwise[right][left]) {
+            console.log(`Have received a tie in the rankings for schulze for the category ${cat} for entries of ${left} and ${right}`)
+          }
           if (matrixPairwise[left][right] >= matrixPairwise[right][left])
+            return -1;
+          return 1;
+
+        }
+        return R.sort(
+          sortFunction,
+          entries
+        );
+      });
+
+      const getRankingsFromMap = R.curry(function _getRankingsFromMap(entries, [cat, rankingCount]) {
+        function sortFunction(left, right) {
+          if (rankingCount[left] === rankingCount[right]) {
+            console.log(`Have received a tie in the rankings for the category ${cat} for entries of ${left} and ${right}`)
+          }
+          if (rankingCount[left] >= rankingCount[right])
             return -1;
           return 1;
 
@@ -127,35 +508,75 @@
           }, {});
       };
 
-      scope.Promise.all([
-        scope.fetch('/getVoteData', fetchOptions)
-          .then(d => d.json()),
-        scope.fetch('/getVotes', fetchOptions)
-          .then(d => d.json())
-      ])
-        .then(([{entries, categories}, votes]) => {
-          const deepVotes = votes.map(deepVote);
-          const randomEntries = R.sort(() => Math.random(), entries);
-          const randomCategories = R.sort(() => Math.random(), categories)
-          const perCategoryRankings = randomCategories
-            .map(getMatrixPairwise(randomEntries, deepVotes))
-            .map(strongestPaths(randomEntries))
-            .map(getRankings(randomEntries));
-          const categoryRankings = R.zip(randomCategories, perCategoryRankings);
-          results.innerHTML = categoryRankings.map(
-            ([category, rankings]) => {
-              return getCategoryListHtml(category)(getRankingsHtml(rankings));
-            }
-          ).join('\n');
-          Materialize.showStaggeredList('#results');
-        });
+      const getCategoryTotals = (entries, votes) => (category) => {
+        return [
+          category,
+          votes
+            .map(vote => (vote || {})[category] || {})
+            .reduce((acc, vote) => {
+              entries.forEach((entry) => {
+                acc[entry] = (acc[entry] || 0) + (vote[entry] || 0)
+              })
+              return acc;
+            }, {})
+          ];
+      };
+
+      const schulzePerCategoryRankings = (cats, entries, votes) => {
+        return cats
+          .map((cat) => getRankingsFromMatrix(cat, entries, strongestPaths(entries, getMatrixPairwise(entries, votes, cat))))
+      };
+
+      const rankingsPerCategory = (cats, entries, votes) => {
+        return cats
+          .map(getCategoryTotals(entries, votes))
+          .map(getRankingsFromMap(entries))
+      };
+
+      const showSchulzeResults = () => {
+        const perCategoryRankings = schulzePerCategoryRankings(randomCategories, randomEntries, votes);
+        const categoryRankings = R.zip(randomCategories, perCategoryRankings);
+        results.innerHTML = categoryRankings.map(
+          ([category, rankings]) => {
+            return getCategoryListHtml(category)(getRankingsFromMatrixHtml(rankings));
+          }
+        ).join('\n');
+      };
+
+      const showRangeResults = () => {
+        const perCategoryRankings = rankingsPerCategory(randomCategories, randomEntries, votes);
+        const categoryRankings = R.zip(randomCategories, perCategoryRankings);
+        results.innerHTML = categoryRankings.map(
+          ([category, rankings]) => {
+            return getCategoryListHtml(category)(getRankingsFromMatrixHtml(rankings));
+          }
+        );
+
+      }
+
+      const showResults = () => {
+        results.innerHTML = '';
+        if (!votes) {
+          return;
+        }
+        const isRangeVoteOn = !document.querySelector('.isRangeVoteOn').checked;
+        const perCategoryRankings = isRangeVoteOn ? rankingsPerCategory(randomCategories, randomEntries, votes) : schulzePerCategoryRankings(randomCategories, randomEntries, votes)
+        const categoryRankings = R.zip(randomCategories, perCategoryRankings);
+        results.innerHTML = categoryRankings.map(
+          ([category, rankings]) => {
+            return getCategoryListHtml(category)(getRankingsFromMatrixHtml(rankings));
+          }
+        ).join('\n');
+        Materialize.showStaggeredList('#results');
+      };
+
+      document.querySelector('.isRangeVoteOn').addEventListener('change', showResults);
 
     // ---
     // Testing
     // -------
 
     //Examples from https://en.wikipedia.org/wiki/Schulze_method#Example
-    const entries = ["A","B","C","D","E"];
     const matrixPairwise = {
       A: {
         A: 0,
@@ -232,8 +653,8 @@
     };
     should.deepEqual(
       getMatrixPairwise(
-        entries,
-        [{"First":{"A":1,"C":2,"B":3,"E":4,"D":5}},{"First":{"A":1,"C":2,"B":3,"E":4,"D":5}},{"First":{"A":1,"C":2,"B":3,"E":4,"D":5}},{"First":{"A":1,"C":2,"B":3,"E":4,"D":5}},{"First":{"A":1,"C":2,"B":3,"E":4,"D":5}},{"First":{"A":1,"D":2,"E":3,"C":4,"B":5}},{"First":{"A":1,"D":2,"E":3,"C":4,"B":5}},{"First":{"A":1,"D":2,"E":3,"C":4,"B":5}},{"First":{"A":1,"D":2,"E":3,"C":4,"B":5}},{"First":{"A":1,"D":2,"E":3,"C":4,"B":5}},{"First":{"B":1,"E":2,"D":3,"A":4,"C":5}},{"First":{"B":1,"E":2,"D":3,"A":4,"C":5}},{"First":{"B":1,"E":2,"D":3,"A":4,"C":5}},{"First":{"B":1,"E":2,"D":3,"A":4,"C":5}},{"First":{"B":1,"E":2,"D":3,"A":4,"C":5}},{"First":{"B":1,"E":2,"D":3,"A":4,"C":5}},{"First":{"B":1,"E":2,"D":3,"A":4,"C":5}},{"First":{"B":1,"E":2,"D":3,"A":4,"C":5}},{"First":{"C":1,"A":2,"B":3,"E":4,"D":5}},{"First":{"C":1,"A":2,"B":3,"E":4,"D":5}},{"First":{"C":1,"A":2,"B":3,"E":4,"D":5}},{"First":{"C":1,"A":2,"E":3,"B":4,"D":5}},{"First":{"C":1,"A":2,"E":3,"B":4,"D":5}},{"First":{"C":1,"A":2,"E":3,"B":4,"D":5}},{"First":{"C":1,"A":2,"E":3,"B":4,"D":5}},{"First":{"C":1,"A":2,"E":3,"B":4,"D":5}},{"First":{"C":1,"A":2,"E":3,"B":4,"D":5}},{"First":{"C":1,"A":2,"E":3,"B":4,"D":5}},{"First":{"C":1,"B":2,"A":3,"D":4,"E":5}},{"First":{"C":1,"B":2,"A":3,"D":4,"E":5}},{"First":{"D":1,"C":2,"E":3,"B":4,"A":5}},{"First":{"D":1,"C":2,"E":3,"B":4,"A":5}},{"First":{"D":1,"C":2,"E":3,"B":4,"A":5}},{"First":{"D":1,"C":2,"E":3,"B":4,"A":5}},{"First":{"D":1,"C":2,"E":3,"B":4,"A":5}},{"First":{"D":1,"C":2,"E":3,"B":4,"A":5}},{"First":{"D":1,"C":2,"E":3,"B":4,"A":5}},{"First":{"E":1,"B":2,"A":3,"D":4,"C":5}},{"First":{"E":1,"B":2,"A":3,"D":4,"C":5}},{"First":{"E":1,"B":2,"A":3,"D":4,"C":5}},{"First":{"E":1,"B":2,"A":3,"D":4,"C":5}},{"First":{"E":1,"B":2,"A":3,"D":4,"C":5}},{"First":{"E":1,"B":2,"A":3,"D":4,"C":5}},{"First":{"E":1,"B":2,"A":3,"D":4,"C":5}},{"First":{"E":1,"B":2,"A":3,"D":4,"C":5}}],
+        fakeEntries,
+        fakeVotes.map(deepVote),
         "First"
       ),
       matrixPairwise
@@ -241,19 +662,64 @@
 
     should.deepEqual(
       strongestPaths(
-        entries,
+        fakeEntries,
         matrixPairwise
       ),
       strongestMatrixPairwise
     );
 
     should.deepEqual(
-      getRankings(
-        entries,
+      getRankingsFromMatrix(
+        'First',
+        fakeEntries,
         strongestMatrixPairwise
       ),
       ['E', 'A', 'C', 'B', 'D']
-    )
+    );
+
+    should.deepEqual(
+      schulzePerCategoryRankings(
+        fakeCategories,
+        fakeEntries,
+        fakeVotes.map(deepVote)
+      ),
+      [['E', 'A', 'C', 'B', 'D']]
+    );
+
+    should.deepEqual(
+      rankingsPerCategory(
+        fakeCategories,
+        fakeEntries,
+        fakeVotes.map(deepVote)
+      ),
+      [['E', 'A', 'B', 'C', 'D']]
+    );
+
+
+
+
+
+
+    scope.Promise.all([
+      /*
+      Promise.resolve({entries: fakeEntries, categories: fakeCategories}),
+      Promise.resolve(fakeVotes)
+      /*/
+      scope.fetch('/getVoteData', fetchOptions)
+        .then(d => d.json()),
+      scope.fetch('/getVotes', fetchOptions)
+        .then(d => d.json())
+        //*/
+    ])
+      .then(([{entries, categories}, _votes]) => {
+        const deepVotes = _votes.map(deepVote);
+        votes = deepFreeze(deepVotes);
+        randomEntries = deepFreeze(R.sort(() => Math.random(), entries));
+        randomCategories = deepFreeze(R.sort(() => Math.random(), categories));
+        showResults();
+      });
+
+
 
     })(window);
   </script>
