@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <style>
     #results li {
-      opacity: 0;
+      /*opacity: 0;*/
     }
   </style>
 </head>
@@ -465,9 +465,11 @@
       });
 
       const getRankingsFromMatrix = R.curry(function _getRankingsFromMatrix(cat, entries, matrixPairwise) {
+        const duplicates = [];
         function sortFunction(left, right) {
           if (matrixPairwise[left][right] === matrixPairwise[right][left]) {
-            console.log(`Have received a tie in the rankings for schulze for the category ${cat} for entries of ${left} and ${right}`)
+            duplicates.push([left, right]);
+            // console.log(`Have received a tie in the rankings for schulze for the category ${cat} for entries of ${left} and ${right}`)
           }
           if (matrixPairwise[left][right] >= matrixPairwise[right][left])
             return -1;
@@ -477,13 +479,21 @@
         return R.sort(
           sortFunction,
           entries
-        );
+        ).map(x => {
+          const add = (duplicates.filter(y => y[0] === x || y[1] === x).map((y) => y[0] === x ? '[' : ']')).join('');
+          if(add)
+            return `${x} ${add}`;
+          return x;
+        });
       });
 
       const getRankingsFromMap = R.curry(function _getRankingsFromMap(entries, [cat, rankingCount]) {
+        const duplicates = [];
+
         function sortFunction(left, right) {
           if (rankingCount[left] === rankingCount[right]) {
-            console.log(`Have received a tie in the rankings for the category ${cat} for entries of ${left} and ${right}`)
+            duplicates.push([left, right]);
+            // console.log(`Have received a tie in the rankings for the category ${cat} for entries of ${left} and ${right}`)
           }
           if (rankingCount[left] >= rankingCount[right])
             return -1;
@@ -493,7 +503,12 @@
         return R.sort(
           sortFunction,
           entries
-        );
+        ).map(x => {
+          const add = (duplicates.filter(y => y[0] === x || y[1] === x).map((y) => y[0] === x ? '[' : ']')).join('');
+          if(add)
+            return `${x} ${add}`;
+          return x;
+        });
       });
 
       const deepVote = (vote) => {
@@ -567,7 +582,7 @@
             return getCategoryListHtml(category)(getRankingsFromMatrixHtml(rankings));
           }
         ).join('\n');
-        Materialize.showStaggeredList('#results');
+        // Materialize.showStaggeredList('#results');
       };
 
       document.querySelector('.isRangeVoteOn').addEventListener('change', showResults);

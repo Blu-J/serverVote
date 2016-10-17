@@ -6,6 +6,7 @@ const request = require('request');
 const privateKey = process.env.SERVER_VOTE_PEM;
 const Encrypt = require('node-rsa');
 const crypt = new Encrypt(privateKey);
+const fs = require('fs');
 
 const validDecryption = /.*@.*\..*/;
 const awsKeys = {
@@ -192,7 +193,9 @@ app.get("/",(req, res) => {
 });
 
 app.get('/getResults', (req, res) => {
-	request('http://algorithmalchemist.net.s3-website-us-west-2.amazonaws.com/voteResults.html').pipe(res);
+
+    res.sendfile('./voteResults.html');
+	// request('http://algorithmalchemist.net.s3-website-us-west-2.amazonaws.com/voteResults.html').pipe(res);
 });
 
 app.get('/getVoteData', (req, res) => {
@@ -224,4 +227,4 @@ app.get('/getVotes', (r, response) => {
     .elseThen(badResponse(response));
 });
 
-app.listen(80);
+app.listen(8087);
